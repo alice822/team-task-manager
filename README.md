@@ -73,19 +73,6 @@ team-task-manager/
 - Node.js 18+
 - PostgreSQL
 
-### 1. Clone the repo
-```bash
-git clone https://github.com/alice822/team-task-manager.git
-cd team-task-manager
-```
-
-### 2. Backend Setup
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
 
 Create a `.env` file based on `.env.example`:
 ```
