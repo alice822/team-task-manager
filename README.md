@@ -4,8 +4,8 @@ Live URL: https://your-app.railway.app
 Demo Video: https://your-video-link.com
 GitHub Repo: https://github.com/alice822/team-task-manager
 
-Features
 
+Features
 Authentication with Signup and Login using JWT tokens
 Project and team management
 Task creation, assignment, and status tracking
@@ -15,7 +15,6 @@ Role-based access control for Admin and Member roles
 
 Tech Stack
 Backend
-
 Python + Flask — REST API
 Flask-JWT-Extended — Authentication
 SQLAlchemy — Database ORM
@@ -23,14 +22,12 @@ PostgreSQL — Database
 Flask-Migrate — Migrations
 
 Frontend
-
 React + Vite
 Axios — HTTP requests
 React Context API — Auth state
 React Router — Client-side routing
 
 Deployment
-
 Railway — Backend, frontend, and database
 
 
