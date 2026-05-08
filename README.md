@@ -34,33 +34,6 @@ Deployment
 Railway — Backend, frontend, and database
 
 
-Project Structure
-team-task-manager/
-├── backend/
-│   ├── middleware/
-│   │   └── auth_middleware.py
-│   ├── models/
-│   │   ├── user.py
-│   │   ├── project.py
-│   │   ├── task.py
-│   │   └── project_member.py
-│   ├── routes/
-│   │   ├── auth.py
-│   │   ├── projects.py
-│   │   ├── tasks.py
-│   │   └── dashboard.py
-│   ├── app.py
-│   ├── config.py
-│   ├── extensions.py
-│   └── .env.example
-├── frontend/
-│   └── src/
-│       ├── api/axios.js
-│       ├── components/
-│       ├── context/AuthContext.jsx
-│       └── pages/
-└── README.md
-
 Local Setup
 Prerequisites
 
