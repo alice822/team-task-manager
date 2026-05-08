@@ -158,8 +158,3 @@ DATABASE_URL=
 See `.env.example` for reference.
 
 ---
-
-## Author
-
-Your Name  
-GitHub: https://github.com/alice822
