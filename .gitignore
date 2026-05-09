@@ -1,3 +1,6 @@
+# VSCode
+.vscode/
+
 # Backend
 backend/.env
 backend/venv/
@@ -11,4 +14,3 @@ frontend/dist/
 
 # Mac
 .DS_Store
-backend/venv/.vscode/
