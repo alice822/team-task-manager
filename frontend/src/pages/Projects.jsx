@@ -10,8 +10,14 @@ const Projects = () => {
   const [projects, setProjects] = useState([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
+  const [showMemberModal, setShowMemberModal] = useState(false)
+  const [selectedProject, setSelectedProject] = useState(null)
   const [form, setForm] = useState({ name: '', description: '' })
+  const [memberEmail, setMemberEmail] = useState('')
   const [error, setError] = useState('')
+  const [memberError, setMemberError] = useState('')
+  const [memberSuccess, setMemberSuccess] = useState('')
+  const [allUsers, setAllUsers] = useState([])
 
   const fetchProjects = async () => {
     try {
@@ -24,8 +30,18 @@ const Projects = () => {
     }
   }
 
+  const fetchUsers = async () => {
+    try {
+      const res = await API.get('/auth/users')
+      setAllUsers(res.data)
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
   useEffect(() => {
     fetchProjects()
+    if (user?.role === 'admin') fetchUsers()
   }, [])
 
   const handleCreate = async (e) => {
@@ -38,6 +54,26 @@ const Projects = () => {
       fetchProjects()
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to create project')
+    }
+  }
+
+  const handleAddMember = async (e) => {
+    e.preventDefault()
+    setMemberError('')
+    setMemberSuccess('')
+    try {
+      const userToAdd = allUsers.find(u => u.email === memberEmail)
+      if (!userToAdd) {
+        setMemberError('User not found with this email')
+        return
+      }
+      await API.post(`/projects/${selectedProject.id}/members`, {
+        user_id: userToAdd.id
+      })
+      setMemberSuccess(`${userToAdd.name} added successfully!`)
+      setMemberEmail('')
+    } catch (err) {
+      setMemberError(err.response?.data?.error || 'Failed to add member')
     }
   }
 
@@ -70,36 +106,49 @@ const Projects = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {projects.map((project) => (
-              <div
-                key={project.id}
-                onClick={() => navigate(`/projects/${project.id}`)}
-                className="bg-white border border-gray-200 rounded-xl p-6 cursor-pointer hover:shadow-md hover:border-blue-300 transition"
-              >
-                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                  <span className="text-blue-600 text-lg">📁</span>
+              <div key={project.id} className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-md hover:border-blue-300 transition">
+                <div
+                  onClick={() => navigate(`/projects/${project.id}`)}
+                  className="cursor-pointer"
+                >
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                    <span className="text-blue-600 text-lg">📁</span>
+                  </div>
+                  <h3 className="font-semibold text-gray-800 mb-1">{project.name}</h3>
+                  <p className="text-gray-500 text-sm line-clamp-2">{project.description || 'No description'}</p>
+                  <p className="text-xs text-gray-400 mt-3">
+                    Created {new Date(project.created_at).toLocaleDateString()}
+                  </p>
                 </div>
-                <h3 className="font-semibold text-gray-800 mb-1">{project.name}</h3>
-                <p className="text-gray-500 text-sm line-clamp-2">{project.description || 'No description'}</p>
-                <p className="text-xs text-gray-400 mt-3">
-                  Created {new Date(project.created_at).toLocaleDateString()}
-                </p>
+
+                {user?.role === 'admin' && (
+                  <button
+                    onClick={() => {
+                      setSelectedProject(project)
+                      setMemberError('')
+                      setMemberSuccess('')
+                      setMemberEmail('')
+                      setShowMemberModal(true)
+                    }}
+                    className="mt-4 w-full text-sm text-blue-600 border border-blue-200 hover:bg-blue-50 py-1.5 rounded-lg transition"
+                  >
+                    👥 Add Member
+                  </button>
+                )}
               </div>
             ))}
           </div>
         )}
       </div>
 
+      {/* Create Project Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">Create New Project</h2>
-
             {error && (
-              <div className="bg-red-50 text-red-600 text-sm px-4 py-3 rounded-lg mb-4">
-                {error}
-              </div>
+              <div className="bg-red-50 text-red-600 text-sm px-4 py-3 rounded-lg mb-4">{error}</div>
             )}
-
             <form onSubmit={handleCreate} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Project name</label>
@@ -135,6 +184,52 @@ const Projects = () => {
                   className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
                 >
                   Create Project
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Add Member Modal */}
+      {showMemberModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl">
+            <h2 className="text-lg font-semibold text-gray-800 mb-1">Add Member</h2>
+            <p className="text-sm text-gray-500 mb-4">Add member to <strong>{selectedProject?.name}</strong></p>
+
+            {memberError && (
+              <div className="bg-red-50 text-red-600 text-sm px-4 py-3 rounded-lg mb-4">{memberError}</div>
+            )}
+            {memberSuccess && (
+              <div className="bg-green-50 text-green-600 text-sm px-4 py-3 rounded-lg mb-4">{memberSuccess}</div>
+            )}
+
+            <form onSubmit={handleAddMember} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Member Email</label>
+                <input
+                  type="email"
+                  value={memberEmail}
+                  onChange={(e) => setMemberEmail(e.target.value)}
+                  placeholder="member@example.com"
+                  required
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div className="flex gap-3 justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowMemberModal(false)}
+                  className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition"
+                >
+                  Close
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                >
+                  Add Member
                 </button>
               </div>
             </form>

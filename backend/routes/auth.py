@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from extensions import db, limiter
 from models.user import User
 from flask_jwt_extended import create_access_token
+from middleware.auth_middleware import token_required
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -55,3 +56,9 @@ def login():
         'token': access_token,
         'user': user.to_dict()
     }), 200
+
+@auth_bp.route('/users', methods=['GET'])
+@token_required
+def get_users():
+    users = User.query.all()
+    return jsonify([u.to_dict() for u in users]), 200
