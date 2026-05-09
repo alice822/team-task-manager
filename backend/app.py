@@ -21,19 +21,17 @@ def create_app():
     app.register_blueprint(tasks_bp, url_prefix='/api/tasks')
     app.register_blueprint(dashboard_bp, url_prefix='/api/dashboard')
 
+    # Auto create tables
+    with app.app_context():
+        db.create_all()
+
+    @app.route('/')
+    def index():
+        return {"message": "Team Task Manager API is running!"}, 200
+
     return app
 
 app = create_app()
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        print("Tables created!")
     app.run(debug=True)
-
-
-    app = create_app()
-
-@app.route('/')
-def index():
-    return {"message": "Team Task Manager API is running!"}, 200
